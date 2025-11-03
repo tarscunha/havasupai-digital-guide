@@ -19,6 +19,7 @@ import Contact from '@/components/sections/contact';
 import Advocacy from '@/components/sections/advocacy';
 import About from '@/components/sections/about';
 import Jobs from '@/components/sections/jobs';
+import { DisclaimerDialog } from '@/components/ui/disclaimer-dialog';
 
 type SectionId = 
   | 'home' 
@@ -57,12 +58,22 @@ const sectionIds: SectionId[] = [
 
 export default function PageClient({ content }: { content: any }) {
   const [activeSection, setActiveSection] = useState<SectionId>('home');
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const sectionRefs = useRef<Record<SectionId, React.RefObject<HTMLDivElement>>>(
     sectionIds.reduce((acc, id) => {
       acc[id] = createRef<HTMLDivElement>();
       return acc;
     }, {} as Record<SectionId, React.RefObject<HTMLDivElement>>)
   );
+
+  // Show disclaimer after a brief delay to prevent flash
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowDisclaimer(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const observerOptions = {
@@ -144,6 +155,10 @@ export default function PageClient({ content }: { content: any }) {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <DisclaimerDialog 
+        open={showDisclaimer} 
+        onOpenChange={setShowDisclaimer} 
+      />
       <Header onNavLinkClick={handleNavLinkClick} activeSection={activeSection} />
       <main className="flex-grow">
         <Hero ref={sectionRefs.current.home} content={content?.hero} />
